@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "assay-docs"
+version = "0.1.0"
+description = "Execute the documentation. Find out what is still true."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Bipin Rimal" }]
+keywords = ["documentation", "docs-as-code", "testing", "postgresql", "ci"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Documentation",
+  "Topic :: Software Development :: Testing",
+]
+dependencies = ["PyYAML>=5.4"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+assay = "assay.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/BipinRimal314/assay"
+
+[tool.setuptools.packages.find]
+include = ["assay*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

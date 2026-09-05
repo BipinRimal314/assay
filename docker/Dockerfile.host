@@ -1,0 +1,10 @@
+# A faithful stand-in for a fresh Ubuntu 24.04 server: non-root user, working sudo,
+# nothing preinstalled beyond what a base cloud image gives you.
+FROM ubuntu:24.04
+RUN apt-get update && apt-get install -y --no-install-recommends sudo ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+RUN useradd -m -s /bin/bash tester \
+ && echo 'tester ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/tester
+USER tester
+WORKDIR /home/tester
+CMD ["sleep", "infinity"]

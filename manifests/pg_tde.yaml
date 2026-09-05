@@ -1,0 +1,51 @@
+# Walk the pg_tde install path the way a new user walks it: the install page,
+# then whatever its "Next steps" button points at, in one machine, in order.
+#
+# Everything under `substitutions` is a place where the harness, not the
+# documentation, is the problem. Each one is declared here so it shows up in
+# the report and can be argued with.
+
+docs_root: ../corpus/pg_tde/documentation/docs
+
+environment:
+  # Built from docker/Dockerfile.host: Ubuntu 24.04 with a non-root user and a
+  # working sudo, so `sudo` in the docs runs as written rather than being
+  # stripped. Nothing else is preinstalled.
+  image: assay-host:ubuntu24
+  platform: linux/arm64
+
+  preflight:
+    # A freshly provisioned Ubuntu server has populated apt lists. A container
+    # image ships with them deleted. Priming them removes a container artifact
+    # that would otherwise be misread as the docs forgetting an apt-get update.
+    - sudo apt-get update -qq
+
+  substitutions:
+    - match: "systemctl restart postgresql"
+      replace: "sudo pg_ctlcluster 18 main restart"
+      reason: "no init system in a container; pg_ctlcluster is Debian's documented equivalent"
+    - match: "systemctl restart postgresql-17"
+      replace: "sudo pg_ctlcluster 18 main restart"
+      reason: "no init system in a container, and the doc's hardcoded 17 does not exist here"
+    - match: "{{pgversion17}}"
+      replace: "18"
+      reason: "MkDocs renders this macro as 18; substituting so the run tests the published page"
+
+pages:
+  - path: apt.md
+    substitutions:
+      - match: "percona-release enable-only ppg-{{pgversion17}}"
+        replace: "sudo percona-release enable-only ppg-18"
+        reason: "MkDocs renders the macro as 18; this is what the published page shows"
+      - match: "apt-get install -y percona-pg-tde{{pgversion17}}"
+        replace: "sudo apt-get install -y percona-pg-tde18"
+        reason: "MkDocs renders the macro as 18; this is what the published page shows"
+
+  # apt.md's Next steps button goes straight here. Nothing between the two
+  # pages installs a PostgreSQL server, which is the point of running them
+  # in this order in one container.
+  - path: setup.md
+
+  - path: global-key-provider-configuration/keyring.md
+
+  - path: test.md
